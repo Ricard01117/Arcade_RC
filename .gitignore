@@ -1,0 +1,23 @@
+# Frontend
+node_modules/
+dist/
+
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Variables locales
+.env
+backend/.env
+
+# VS Code
+.vscode/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
