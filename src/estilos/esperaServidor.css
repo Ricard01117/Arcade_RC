@@ -1,3 +1,9 @@
+/*
+==========================================
+OVERLAY
+==========================================
+*/
+
 .espera-servidor-overlay {
   position: fixed;
 
@@ -16,24 +22,25 @@
       0,
       0,
       0,
-      0.72
+      0.78
     );
 
   backdrop-filter:
-    blur(8px);
+    blur(10px);
 
-  /*
-  Permite que el usuario todavía
-  pueda usar el botón cerrar que está
-  debajo si realmente quiere salir.
-  */
-  pointer-events: none;
+  pointer-events: auto;
 
   animation:
     entradaEsperaServidor
-    0.2s ease;
+    0.25s ease;
 }
 
+
+/*
+==========================================
+TARJETA
+==========================================
+*/
 
 .espera-servidor-tarjeta {
   width:
@@ -43,7 +50,7 @@
     );
 
   padding:
-    30px 28px;
+    32px 28px;
 
   display: flex;
 
@@ -78,17 +85,17 @@
     24px;
 
   box-shadow:
-    0 28px 80px
+    0 30px 90px
     rgba(
       0,
       0,
       0,
-      0.65
+      0.72
     );
 
   animation:
     entradaTarjetaServidor
-    0.3s
+    0.35s
     cubic-bezier(
       0.22,
       1,
@@ -97,6 +104,12 @@
     );
 }
 
+
+/*
+==========================================
+MARCA
+==========================================
+*/
 
 .espera-servidor-marca {
   color:
@@ -116,6 +129,12 @@
 }
 
 
+/*
+==========================================
+TITULO
+==========================================
+*/
+
 .espera-servidor-tarjeta h3 {
   margin: 0;
 
@@ -127,9 +146,9 @@
 
   font-size:
     clamp(
-      21px,
+      22px,
       5vw,
-      29px
+      30px
     );
 
   font-weight:
@@ -139,6 +158,12 @@
     1px;
 }
 
+
+/*
+==========================================
+TEXTO
+==========================================
+*/
 
 .espera-servidor-tarjeta p {
   max-width:
@@ -160,15 +185,21 @@
 }
 
 
+/*
+==========================================
+SPINNER
+==========================================
+*/
+
 .espera-servidor-spinner {
   width:
-    68px;
+    70px;
 
   height:
-    68px;
+    70px;
 
   margin:
-    5px 0;
+    7px 0;
 
   border-radius:
     50%;
@@ -198,7 +229,7 @@
     );
 
   box-shadow:
-    0 0 28px
+    0 0 30px
     color-mix(
       in srgb,
       var(
@@ -216,6 +247,12 @@
 }
 
 
+/*
+==========================================
+ESTADO CONECTANDO
+==========================================
+*/
+
 .espera-servidor-linea {
   display: flex;
 
@@ -226,10 +263,10 @@
   gap: 9px;
 
   margin-top:
-    3px;
+    4px;
 
   padding:
-    9px 14px;
+    10px 15px;
 
   color:
     var(
@@ -258,11 +295,14 @@
 
   font-weight:
     900;
-
-  letter-spacing:
-    0.5px;
 }
 
+
+/*
+==========================================
+PUNTO ANIMADO
+==========================================
+*/
 
 .espera-servidor-punto {
   width:
@@ -270,6 +310,9 @@
 
   height:
     9px;
+
+  flex:
+    0 0 auto;
 
   border-radius:
     50%;
@@ -281,7 +324,7 @@
     );
 
   box-shadow:
-    0 0 12px
+    0 0 13px
     var(
       --panel-accent,
       #00eaff
@@ -294,15 +337,27 @@
 }
 
 
+/*
+==========================================
+TEXTOS PEQUEÑOS
+==========================================
+*/
+
 .espera-servidor-tarjeta small {
   color:
     var(
       --panel-muted,
-      #aaa
+      #aaaaaa
     );
 
   font-size:
     12px;
+}
+
+
+.espera-servidor-tiempo {
+  font-weight:
+    800;
 }
 
 
@@ -318,26 +373,32 @@
 }
 
 
+/*
+==========================================
+CONECTADO / ERROR
+==========================================
+*/
+
 .espera-servidor-correcto,
 .espera-servidor-error {
   width:
-    76px;
+    78px;
 
   height:
-    76px;
+    78px;
 
   display: grid;
 
   place-items: center;
 
   margin:
-    5px 0;
+    7px 0;
 
   border-radius:
     50%;
 
   font-size:
-    45px;
+    46px;
 
   font-weight:
     1000;
@@ -346,6 +407,12 @@
     1;
 }
 
+
+/*
+==========================================
+CONECTADO
+==========================================
+*/
 
 .espera-servidor-correcto {
   color:
@@ -362,7 +429,7 @@
     );
 
   box-shadow:
-    0 0 32px
+    0 0 34px
     color-mix(
       in srgb,
       var(
@@ -375,9 +442,15 @@
 
   animation:
     conectadoServidor
-    0.4s ease;
+    0.45s ease;
 }
 
+
+/*
+==========================================
+ERROR
+==========================================
+*/
 
 .espera-servidor-error {
   color:
@@ -394,7 +467,7 @@
     );
 
   box-shadow:
-    0 0 32px
+    0 0 34px
     color-mix(
       in srgb,
       var(
@@ -406,6 +479,103 @@
     );
 }
 
+
+/*
+==========================================
+BOTON REINTENTAR
+==========================================
+*/
+
+.espera-servidor-reintentar {
+  min-width:
+    150px;
+
+  min-height:
+    46px;
+
+  margin-top:
+    4px;
+
+  padding:
+    11px 20px;
+
+  border-radius:
+    12px;
+
+  cursor:
+    pointer;
+
+  color:
+    var(
+      --panel-button-text,
+      #ffffff
+    );
+
+  background:
+    var(
+      --panel-button-bg,
+      #222222
+    );
+
+  border:
+    1px solid
+    var(
+      --panel-button-border,
+      #555555
+    );
+
+  font-weight:
+    900;
+
+  transition:
+    transform
+    0.18s ease,
+    border-color
+    0.18s ease,
+    box-shadow
+    0.18s ease;
+}
+
+
+.espera-servidor-reintentar:hover {
+  transform:
+    translateY(
+      -2px
+    );
+
+  border-color:
+    var(
+      --panel-accent,
+      #00eaff
+    );
+
+  box-shadow:
+    0 0 18px
+    color-mix(
+      in srgb,
+      var(
+        --panel-accent,
+        #00eaff
+      )
+      25%,
+      transparent
+    );
+}
+
+
+.espera-servidor-reintentar:active {
+  transform:
+    scale(
+      0.96
+    );
+}
+
+
+/*
+==========================================
+ANIMACIONES
+==========================================
+*/
 
 @keyframes girarServidor {
   to {
@@ -513,6 +683,12 @@
 }
 
 
+/*
+==========================================
+MOVIL
+==========================================
+*/
+
 @media (
   max-width: 600px
 ) {
@@ -524,7 +700,7 @@
 
   .espera-servidor-tarjeta {
     padding:
-      25px 20px;
+      26px 20px;
 
     border-radius:
       20px;
@@ -552,5 +728,11 @@
   .espera-servidor-tarjeta p {
     font-size:
       13px;
+  }
+
+
+  .espera-servidor-linea {
+    font-size:
+      12px;
   }
 }

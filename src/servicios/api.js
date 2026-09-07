@@ -8,50 +8,6 @@ const API_URL = (
 );
 
 
-export const EVENTO_ESTADO_SERVIDOR =
-  "arcade-rc:estado-servidor";
-
-
-function notificarEstadoServidor(
-  estado,
-  solicitudId
-) {
-  if (
-    typeof window ===
-    "undefined"
-  ) {
-    return;
-  }
-
-
-  window.dispatchEvent(
-    new CustomEvent(
-      EVENTO_ESTADO_SERVIDOR,
-      {
-        detail: {
-          estado,
-          solicitudId,
-        },
-      }
-    )
-  );
-}
-
-
-function esperar(
-  milisegundos
-) {
-  return new Promise(
-    (resolver) => {
-      window.setTimeout(
-        resolver,
-        milisegundos
-      );
-    }
-  );
-}
-
-
 async function peticion(
   ruta,
   opciones = {}
@@ -92,12 +48,43 @@ async function peticion(
 }
 
 
+/*
+=====================================
+COMPROBAR SERVIDOR
+
+Se utiliza solamente cuando
+Arcade_RC inicia.
+
+Sirve para despertar Render
+si estaba suspendido.
+=====================================
+*/
+
+export function comprobarServidor() {
+  return peticion(
+    "/api/salud"
+  );
+}
+
+
+/*
+=====================================
+ESTADISTICAS
+=====================================
+*/
+
 export function obtenerEstadisticas() {
   return peticion(
     "/api/estadisticas"
   );
 }
 
+
+/*
+=====================================
+LOGROS
+=====================================
+*/
 
 export function obtenerLogros() {
   return peticion(
@@ -106,134 +93,37 @@ export function obtenerLogros() {
 }
 
 
-export async function iniciarPartida(
+/*
+=====================================
+INICIAR PARTIDA
+=====================================
+*/
+
+export function iniciarPartida(
   codigoJuego
 ) {
-  const solicitudId =
-    `${Date.now()}-${Math.random()
-      .toString(36)
-      .slice(2)}`;
+  return peticion(
+    "/api/partidas/iniciar",
 
+    {
+      method:
+        "POST",
 
-  let esperaVisible =
-    false;
-
-
-  let temporizadorEspera =
-    null;
-
-
-  /*
-  Si el servidor responde rápido,
-  nunca mostramos la pantalla.
-
-  Si tarda más de 600 ms,
-  asumimos que Render puede estar
-  despertando y avisamos al usuario.
-  */
-  if (
-    typeof window !==
-    "undefined"
-  ) {
-    temporizadorEspera =
-      window.setTimeout(
-        () => {
-          esperaVisible =
-            true;
-
-
-          notificarEstadoServidor(
-            "conectando",
-            solicitudId
-          );
-        },
-        600
-      );
-  }
-
-
-  try {
-    const respuesta =
-      await peticion(
-        "/api/partidas/iniciar",
-
-        {
-          method:
-            "POST",
-
-          body:
-            JSON.stringify({
-              codigo_juego:
-                codigoJuego,
-            }),
-        }
-      );
-
-
-    if (
-      temporizadorEspera
-    ) {
-      window.clearTimeout(
-        temporizadorEspera
-      );
+      body:
+        JSON.stringify({
+          codigo_juego:
+            codigoJuego,
+        }),
     }
-
-
-    /*
-    Solo enseñamos "conectado"
-    si realmente apareció antes
-    la pantalla de espera.
-    */
-    if (
-      esperaVisible
-    ) {
-      notificarEstadoServidor(
-        "conectado",
-        solicitudId
-      );
-
-
-      /*
-      Pequeña pausa visual para
-      que el usuario alcance a ver
-      que el servidor respondió.
-      */
-      await esperar(
-        700
-      );
-    }
-
-
-    return respuesta;
-  } catch (error) {
-    if (
-      temporizadorEspera
-    ) {
-      window.clearTimeout(
-        temporizadorEspera
-      );
-    }
-
-
-    if (
-      esperaVisible
-    ) {
-      notificarEstadoServidor(
-        "error",
-        solicitudId
-      );
-
-
-      await esperar(
-        1200
-      );
-    }
-
-
-    throw error;
-  }
+  );
 }
 
+
+/*
+=====================================
+ACTUALIZAR PARTIDA
+=====================================
+*/
 
 export function actualizarPartida(
   partidaId,
@@ -258,6 +148,12 @@ export function actualizarPartida(
   );
 }
 
+
+/*
+=====================================
+FINALIZAR PARTIDA
+=====================================
+*/
 
 export function finalizarPartida(
   partidaId,

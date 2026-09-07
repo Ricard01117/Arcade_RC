@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -6,12 +7,7 @@ import {
 
 
 import {
-  useJuego,
-} from "../../contexto/ContextoJuego";
-
-
-import {
-  EVENTO_ESTADO_SERVIDOR,
+  comprobarServidor,
 } from "../../servicios/api";
 
 
@@ -19,16 +15,11 @@ import "../../estilos/esperaServidor.css";
 
 
 function EsperaServidor() {
-  const {
-    juegoActivo,
-  } = useJuego();
-
-
   const [
     estado,
     setEstado,
   ] = useState(
-    "oculto"
+    "conectando"
   );
 
 
@@ -40,151 +31,140 @@ function EsperaServidor() {
   );
 
 
-  const solicitudActivaRef =
+  const componenteActivoRef =
+    useRef(true);
+
+
+  const temporizadorListoRef =
     useRef(null);
 
 
-  const temporizadorOcultarRef =
-    useRef(null);
+  /*
+  =====================================
+  CONECTAR CON RENDER
 
+  Esto ocurre UNA SOLA VEZ cuando
+  se carga Arcade_RC.
 
-  useEffect(() => {
-    const manejarEstado =
-      (evento) => {
-        const detalle =
-          evento.detail ||
-          {};
+  No depende de:
+  - Viborita
+  - Pong
+  - Disparos
+  - Rompe Bloques
 
+  Por lo tanto, abrir juegos no vuelve
+  a mostrar esta pantalla.
+  =====================================
+  */
 
-        const nuevoEstado =
-          detalle.estado;
-
-
-        const solicitudId =
-          detalle.solicitudId;
-
-
-        if (
-          nuevoEstado ===
+  const conectarServidor =
+    useCallback(
+      async () => {
+        setEstado(
           "conectando"
-        ) {
+        );
+
+
+        setSegundos(
+          0
+        );
+
+
+        try {
+          await comprobarServidor();
+
+
           if (
-            temporizadorOcultarRef
+            !componenteActivoRef
               .current
           ) {
-            window.clearTimeout(
-              temporizadorOcultarRef
-                .current
-            );
+            return;
           }
 
 
-          solicitudActivaRef.current =
-            solicitudId;
-
-
-          setSegundos(
-            0
-          );
-
-
-          setEstado(
-            "conectando"
-          );
-
-
-          return;
-        }
-
-
-        if (
-          !solicitudId ||
-          solicitudActivaRef.current !==
-            solicitudId
-        ) {
-          return;
-        }
-
-
-        if (
-          nuevoEstado ===
-          "conectado"
-        ) {
           setEstado(
             "conectado"
           );
 
 
-          temporizadorOcultarRef.current =
+          /*
+          Mostramos brevemente el
+          mensaje de servidor conectado.
+          */
+          temporizadorListoRef.current =
             window.setTimeout(
               () => {
-                setEstado(
-                  "oculto"
-                );
-
-
-                solicitudActivaRef.current =
-                  null;
+                if (
+                  componenteActivoRef
+                    .current
+                ) {
+                  setEstado(
+                    "listo"
+                  );
+                }
               },
-              650
+              1000
             );
-
-
-          return;
-        }
-
-
-        if (
-          nuevoEstado ===
-          "error"
-        ) {
-          setEstado(
-            "error"
+        } catch (error) {
+          console.error(
+            "Error conectando con el servidor:",
+            error
           );
 
 
-          temporizadorOcultarRef.current =
-            window.setTimeout(
-              () => {
-                setEstado(
-                  "oculto"
-                );
-
-
-                solicitudActivaRef.current =
-                  null;
-              },
-              2200
+          if (
+            componenteActivoRef
+              .current
+          ) {
+            setEstado(
+              "error"
             );
+          }
         }
-      };
-
-
-    window.addEventListener(
-      EVENTO_ESTADO_SERVIDOR,
-      manejarEstado
+      },
+      []
     );
 
 
+  /*
+  =====================================
+  INICIO
+  =====================================
+  */
+
+  useEffect(() => {
+    componenteActivoRef.current =
+      true;
+
+
+    conectarServidor();
+
+
     return () => {
-      window.removeEventListener(
-        EVENTO_ESTADO_SERVIDOR,
-        manejarEstado
-      );
+      componenteActivoRef.current =
+        false;
 
 
       if (
-        temporizadorOcultarRef
+        temporizadorListoRef
           .current
       ) {
         window.clearTimeout(
-          temporizadorOcultarRef
+          temporizadorListoRef
             .current
         );
       }
     };
-  }, []);
+  }, [
+    conectarServidor,
+  ]);
 
+
+  /*
+  =====================================
+  CONTADOR DE ESPERA
+  =====================================
+  */
 
   useEffect(() => {
     if (
@@ -217,39 +197,21 @@ function EsperaServidor() {
   ]);
 
 
-  useEffect(() => {
-    solicitudActivaRef.current =
-      null;
+  /*
+  =====================================
+  SERVIDOR LISTO
 
+  Cuando llegamos aquí, la pantalla
+  desaparece por completo.
 
-    setEstado(
-      "oculto"
-    );
-
-
-    setSegundos(
-      0
-    );
-
-
-    if (
-      temporizadorOcultarRef
-        .current
-    ) {
-      window.clearTimeout(
-        temporizadorOcultarRef
-          .current
-      );
-    }
-  }, [
-    juegoActivo,
-  ]);
-
+  No vuelve a mostrarse mientras la
+  página siga abierta.
+  =====================================
+  */
 
   if (
-    !juegoActivo ||
     estado ===
-      "oculto"
+    "listo"
   ) {
     return null;
   }
@@ -283,38 +245,39 @@ function EsperaServidor() {
 
 
             <h3>
-              PREPARANDO SERVIDOR
+              ENCENDIENDO SERVIDOR
             </h3>
 
 
             <p>
-              El servidor gratuito puede
-              tardar hasta un minuto en
-              activarse después de un
-              periodo de inactividad.
+              Estamos conectando
+              Arcade_RC con el servidor.
             </p>
 
 
             <div className="espera-servidor-linea">
+
               <span
                 className="espera-servidor-punto"
                 aria-hidden="true"
               />
 
-              Conectando...
+              Conectando al servidor...
+
             </div>
 
 
-            <small>
-              Esperando respuesta:{" "}
+            <small className="espera-servidor-tiempo">
+              Tiempo de espera:{" "}
               {segundos} s
             </small>
 
 
             <small className="espera-servidor-ayuda">
-              No cierres el juego.
-              Iniciará automáticamente
-              cuando el servidor esté listo.
+              El servidor gratuito puede
+              tardar unos segundos en
+              activarse después de un
+              periodo de inactividad.
             </small>
           </>
         )}
@@ -337,7 +300,7 @@ function EsperaServidor() {
 
 
             <p>
-              Preparando partida...
+              Arcade_RC está listo.
             </p>
           </>
         )}
@@ -360,10 +323,20 @@ function EsperaServidor() {
 
 
             <p>
-              No fue posible conectar con
-              el servidor. Puedes volver
-              a intentarlo.
+              No fue posible conectar
+              con el servidor.
             </p>
+
+
+            <button
+              type="button"
+              className="espera-servidor-reintentar"
+              onClick={
+                conectarServidor
+              }
+            >
+              Reintentar
+            </button>
           </>
         )}
 
