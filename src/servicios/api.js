@@ -1,4 +1,11 @@
-const API_URL = "";
+const API_URL = (
+  import.meta.env
+    .VITE_API_URL ||
+  ""
+).replace(
+  /\/$/,
+  ""
+);
 
 
 async function peticion(
@@ -25,7 +32,9 @@ async function peticion(
     const error =
       await respuesta
         .json()
-        .catch(() => ({}));
+        .catch(
+          () => ({})
+        );
 
 
     throw new Error(
@@ -58,13 +67,16 @@ export function iniciarPartida(
 ) {
   return peticion(
     "/api/partidas/iniciar",
-    {
-      method: "POST",
 
-      body: JSON.stringify({
-        codigo_juego:
-          codigoJuego,
-      }),
+    {
+      method:
+        "POST",
+
+      body:
+        JSON.stringify({
+          codigo_juego:
+            codigoJuego,
+        }),
     }
   );
 }
@@ -77,15 +89,18 @@ export function actualizarPartida(
 ) {
   return peticion(
     `/api/partidas/${partidaId}/progreso`,
+
     {
-      method: "PUT",
+      method:
+        "PUT",
 
-      body: JSON.stringify({
-        puntuacion,
+      body:
+        JSON.stringify({
+          puntuacion,
 
-        duracion_segundos:
-          duracionSegundos,
-      }),
+          duracion_segundos:
+            duracionSegundos,
+        }),
     }
   );
 }
@@ -98,15 +113,18 @@ export function finalizarPartida(
 ) {
   return peticion(
     `/api/partidas/${partidaId}/finalizar`,
+
     {
-      method: "POST",
+      method:
+        "POST",
 
-      body: JSON.stringify({
-        puntuacion,
+      body:
+        JSON.stringify({
+          puntuacion,
 
-        duracion_segundos:
-          duracionSegundos,
-      }),
+          duracion_segundos:
+            duracionSegundos,
+        }),
     }
   );
 }

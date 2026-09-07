@@ -1,3 +1,5 @@
+import os
+
 from fastapi import (
     Depends,
     FastAPI,
@@ -46,32 +48,70 @@ from .services import (
 )
 
 
+# =========================================================
+# CREAR TABLAS
+# =========================================================
+
 Base.metadata.create_all(
     bind=engine
 )
 
 
-with SessionLocal() as db:
-    cargar_datos_iniciales(db)
+# =========================================================
+# DATOS INICIALES
+#
+# seed.py ya comprueba si existen partidas.
+# No duplica los datos cada vez que arranca.
+# =========================================================
 
+with SessionLocal() as db:
+    cargar_datos_iniciales(
+        db
+    )
+
+
+# =========================================================
+# FASTAPI
+# =========================================================
 
 app = FastAPI(
     title="Arcade_RC API",
-    version="2.0.0",
+
+    version="2.1.0",
+
     description=(
-        "Backend de videojuegos "
-        "y estadísticas de Arcade_RC"
+        "Backend público de juegos, "
+        "partidas, estadísticas y logros "
+        "de Arcade_RC."
     ),
 )
+
+
+# =========================================================
+# CORS
+# =========================================================
+
+FRONTEND_ORIGIN = os.getenv(
+    "FRONTEND_ORIGIN",
+    "https://ricard01117.github.io",
+).rstrip("/")
+
+
+ORIGENES_PERMITIDOS = [
+    "http://localhost:5173",
+
+    "http://127.0.0.1:5173",
+
+    FRONTEND_ORIGIN,
+]
 
 
 app.add_middleware(
     CORSMiddleware,
 
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=(
+        ORIGENES_PERMITIDOS
+    ),
 
     allow_origin_regex=(
         r"http://"
@@ -87,27 +127,51 @@ app.add_middleware(
 )
 
 
+# =========================================================
+# RAÍZ
+# =========================================================
+
 @app.get("/")
 def raiz():
     return {
-        "proyecto": "Arcade_RC",
-        "version": "2.0.0",
-        "backend": "FastAPI",
-        "estado": "activo",
+        "proyecto":
+            "Arcade_RC",
+
+        "version":
+            "2.1.0",
+
+        "backend":
+            "FastAPI",
+
+        "base_datos":
+            "PostgreSQL / SQLite",
+
+        "estado":
+            "activo",
     }
 
+
+# =========================================================
+# SALUD
+# =========================================================
 
 @app.get("/api/salud")
 def salud():
     return {
         "ok": True,
+
         "mensaje":
             "Backend funcionando",
     }
 
 
+# =========================================================
+# JUEGOS
+# =========================================================
+
 @app.get(
     "/api/juegos",
+
     response_model=list[
         JuegoRespuesta
     ],
@@ -119,13 +183,20 @@ def listar_juegos(
 ):
     return (
         db.query(Juego)
-        .order_by(Juego.id)
+        .order_by(
+            Juego.id
+        )
         .all()
     )
 
 
+# =========================================================
+# PARTIDA LEGACY
+# =========================================================
+
 @app.post(
     "/api/partidas",
+
     response_model=(
         ResultadoPartidaRespuesta
     ),
@@ -139,28 +210,41 @@ def crear_partida_legacy(
 ):
     resultado = registrar_partida(
         db=db,
+
         codigo_juego=(
             datos.codigo_juego
         ),
+
         puntuacion=(
             datos.puntuacion
         ),
+
         duracion_segundos=(
             datos.duracion_segundos
         ),
     )
 
+
     if resultado is None:
         raise HTTPException(
             status_code=404,
-            detail="Juego no encontrado",
+
+            detail=(
+                "Juego no encontrado"
+            ),
         )
+
 
     return resultado
 
 
+# =========================================================
+# INICIAR PARTIDA
+# =========================================================
+
 @app.post(
     "/api/partidas/iniciar",
+
     response_model=(
         PartidaIniciadaRespuesta
     ),
@@ -174,23 +258,36 @@ def iniciar_sesion_partida(
 ):
     partida = iniciar_partida(
         db,
+
         datos.codigo_juego,
     )
+
 
     if partida is None:
         raise HTTPException(
             status_code=404,
-            detail="Juego no encontrado",
+
+            detail=(
+                "Juego no encontrado"
+            ),
         )
 
+
     return {
-        "partida_id": partida.id,
+        "partida_id":
+            partida.id,
+
         "codigo_juego":
             datos.codigo_juego,
+
         "mensaje":
             "Partida iniciada",
     }
 
+
+# =========================================================
+# ACTUALIZAR PARTIDA EN VIVO
+# =========================================================
 
 @app.put(
     "/api/partidas/"
@@ -198,6 +295,7 @@ def iniciar_sesion_partida(
 )
 def progreso_partida(
     partida_id: int,
+
     datos: PartidaProgreso,
 
     db: Session = Depends(
@@ -206,40 +304,61 @@ def progreso_partida(
 ):
     partida = actualizar_partida(
         db=db,
-        partida_id=partida_id,
-        puntuacion=datos.puntuacion,
+
+        partida_id=(
+            partida_id
+        ),
+
+        puntuacion=(
+            datos.puntuacion
+        ),
+
         duracion_segundos=(
             datos.duracion_segundos
         ),
     )
 
+
     if partida is None:
         raise HTTPException(
             status_code=404,
-            detail=
-                "Partida no encontrada",
+
+            detail=(
+                "Partida no encontrada"
+            ),
         )
+
 
     return {
         "ok": True,
+
         "partida_id":
             partida.id,
+
         "puntuacion":
             partida.puntuacion,
+
         "duracion_segundos":
-            partida.duracion_segundos,
+            partida
+            .duracion_segundos,
     }
 
+
+# =========================================================
+# FINALIZAR PARTIDA
+# =========================================================
 
 @app.post(
     "/api/partidas/"
     "{partida_id}/finalizar",
+
     response_model=(
         ResultadoPartidaRespuesta
     ),
 )
 def finalizar_sesion_partida(
     partida_id: int,
+
     datos: PartidaProgreso,
 
     db: Session = Depends(
@@ -248,25 +367,41 @@ def finalizar_sesion_partida(
 ):
     resultado = finalizar_partida(
         db=db,
-        partida_id=partida_id,
-        puntuacion=datos.puntuacion,
+
+        partida_id=(
+            partida_id
+        ),
+
+        puntuacion=(
+            datos.puntuacion
+        ),
+
         duracion_segundos=(
             datos.duracion_segundos
         ),
     )
 
+
     if resultado is None:
         raise HTTPException(
             status_code=404,
-            detail=
-                "Partida no encontrada",
+
+            detail=(
+                "Partida no encontrada"
+            ),
         )
+
 
     return resultado
 
 
+# =========================================================
+# ESTADÍSTICAS GENERALES
+# =========================================================
+
 @app.get(
     "/api/estadisticas",
+
     response_model=list[
         EstadisticaJuegoRespuesta
     ],
@@ -278,21 +413,33 @@ def listar_estadisticas(
 ):
     juegos = (
         db.query(Juego)
-        .order_by(Juego.id)
+
+        .order_by(
+            Juego.id
+        )
+
         .all()
     )
+
 
     return [
         obtener_estadistica_juego(
             db,
             juego,
         )
-        for juego in juegos
+
+        for juego
+        in juegos
     ]
 
 
+# =========================================================
+# ESTADÍSTICAS POR JUEGO
+# =========================================================
+
 @app.get(
     "/api/estadisticas/{codigo}",
+
     response_model=(
         EstadisticaJuegoRespuesta
     ),
@@ -306,18 +453,25 @@ def estadisticas_juego(
 ):
     juego = (
         db.query(Juego)
+
         .filter(
             Juego.codigo
             == codigo
         )
+
         .first()
     )
+
 
     if juego is None:
         raise HTTPException(
             status_code=404,
-            detail="Juego no encontrado",
+
+            detail=(
+                "Juego no encontrado"
+            ),
         )
+
 
     return (
         obtener_estadistica_juego(
@@ -327,8 +481,13 @@ def estadisticas_juego(
     )
 
 
+# =========================================================
+# LOGROS
+# =========================================================
+
 @app.get(
     "/api/logros",
+
     response_model=list[
         LogroRespuesta
     ],
@@ -340,12 +499,15 @@ def listar_logros(
 ):
     logros = (
         db.query(Logro)
+
         .order_by(
             Logro.juego_id,
             Logro.id,
         )
+
         .all()
     )
+
 
     return [
         {
@@ -367,5 +529,7 @@ def listar_logros(
             "fecha_desbloqueo":
                 logro.fecha_desbloqueo,
         }
-        for logro in logros
+
+        for logro
+        in logros
     ]
