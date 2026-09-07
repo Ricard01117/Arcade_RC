@@ -1,0 +1,556 @@
+.espera-servidor-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 3000;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 22px;
+
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0.72
+    );
+
+  backdrop-filter:
+    blur(8px);
+
+  /*
+  Permite que el usuario todavía
+  pueda usar el botón cerrar que está
+  debajo si realmente quiere salir.
+  */
+  pointer-events: none;
+
+  animation:
+    entradaEsperaServidor
+    0.2s ease;
+}
+
+
+.espera-servidor-tarjeta {
+  width:
+    min(
+      440px,
+      100%
+    );
+
+  padding:
+    30px 28px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 14px;
+
+  text-align: center;
+
+  color:
+    var(
+      --panel-text,
+      #ffffff
+    );
+
+  background:
+    var(
+      --panel-surface,
+      #0b0a11
+    );
+
+  border:
+    1px solid
+    var(
+      --panel-border,
+      #34313d
+    );
+
+  border-radius:
+    24px;
+
+  box-shadow:
+    0 28px 80px
+    rgba(
+      0,
+      0,
+      0,
+      0.65
+    );
+
+  animation:
+    entradaTarjetaServidor
+    0.3s
+    cubic-bezier(
+      0.22,
+      1,
+      0.36,
+      1
+    );
+}
+
+
+.espera-servidor-marca {
+  color:
+    var(
+      --panel-accent,
+      #00eaff
+    );
+
+  font-size:
+    10px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    4px;
+}
+
+
+.espera-servidor-tarjeta h3 {
+  margin: 0;
+
+  color:
+    var(
+      --panel-text,
+      #ffffff
+    );
+
+  font-size:
+    clamp(
+      21px,
+      5vw,
+      29px
+    );
+
+  font-weight:
+    1000;
+
+  letter-spacing:
+    1px;
+}
+
+
+.espera-servidor-tarjeta p {
+  max-width:
+    350px;
+
+  margin: 0;
+
+  color:
+    var(
+      --panel-muted,
+      #b9b9c5
+    );
+
+  font-size:
+    14px;
+
+  line-height:
+    1.6;
+}
+
+
+.espera-servidor-spinner {
+  width:
+    68px;
+
+  height:
+    68px;
+
+  margin:
+    5px 0;
+
+  border-radius:
+    50%;
+
+  border:
+    6px solid
+    color-mix(
+      in srgb,
+      var(
+        --panel-accent,
+        #00eaff
+      )
+      18%,
+      transparent
+    );
+
+  border-top-color:
+    var(
+      --panel-accent,
+      #00eaff
+    );
+
+  border-right-color:
+    var(
+      --panel-accent-2,
+      #ff3977
+    );
+
+  box-shadow:
+    0 0 28px
+    color-mix(
+      in srgb,
+      var(
+        --panel-accent,
+        #00eaff
+      )
+      30%,
+      transparent
+    );
+
+  animation:
+    girarServidor
+    0.9s linear
+    infinite;
+}
+
+
+.espera-servidor-linea {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 9px;
+
+  margin-top:
+    3px;
+
+  padding:
+    9px 14px;
+
+  color:
+    var(
+      --panel-accent,
+      #00eaff
+    );
+
+  background:
+    var(
+      --panel-inner-bg,
+      #111111
+    );
+
+  border:
+    1px solid
+    var(
+      --panel-border,
+      #34313d
+    );
+
+  border-radius:
+    999px;
+
+  font-size:
+    13px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    0.5px;
+}
+
+
+.espera-servidor-punto {
+  width:
+    9px;
+
+  height:
+    9px;
+
+  border-radius:
+    50%;
+
+  background:
+    var(
+      --panel-accent,
+      #00eaff
+    );
+
+  box-shadow:
+    0 0 12px
+    var(
+      --panel-accent,
+      #00eaff
+    );
+
+  animation:
+    pulsoServidor
+    1s ease-in-out
+    infinite;
+}
+
+
+.espera-servidor-tarjeta small {
+  color:
+    var(
+      --panel-muted,
+      #aaa
+    );
+
+  font-size:
+    12px;
+}
+
+
+.espera-servidor-ayuda {
+  max-width:
+    330px;
+
+  line-height:
+    1.5;
+
+  opacity:
+    0.8;
+}
+
+
+.espera-servidor-correcto,
+.espera-servidor-error {
+  width:
+    76px;
+
+  height:
+    76px;
+
+  display: grid;
+
+  place-items: center;
+
+  margin:
+    5px 0;
+
+  border-radius:
+    50%;
+
+  font-size:
+    45px;
+
+  font-weight:
+    1000;
+
+  line-height:
+    1;
+}
+
+
+.espera-servidor-correcto {
+  color:
+    var(
+      --panel-accent,
+      #00eaff
+    );
+
+  border:
+    2px solid
+    var(
+      --panel-accent,
+      #00eaff
+    );
+
+  box-shadow:
+    0 0 32px
+    color-mix(
+      in srgb,
+      var(
+        --panel-accent,
+        #00eaff
+      )
+      45%,
+      transparent
+    );
+
+  animation:
+    conectadoServidor
+    0.4s ease;
+}
+
+
+.espera-servidor-error {
+  color:
+    var(
+      --panel-accent-2,
+      #ff3977
+    );
+
+  border:
+    2px solid
+    var(
+      --panel-accent-2,
+      #ff3977
+    );
+
+  box-shadow:
+    0 0 32px
+    color-mix(
+      in srgb,
+      var(
+        --panel-accent-2,
+        #ff3977
+      )
+      45%,
+      transparent
+    );
+}
+
+
+@keyframes girarServidor {
+  to {
+    transform:
+      rotate(
+        360deg
+      );
+  }
+}
+
+
+@keyframes pulsoServidor {
+  0%,
+  100% {
+    opacity:
+      0.4;
+
+    transform:
+      scale(
+        0.8
+      );
+  }
+
+  50% {
+    opacity:
+      1;
+
+    transform:
+      scale(
+        1.15
+      );
+  }
+}
+
+
+@keyframes entradaEsperaServidor {
+  from {
+    opacity:
+      0;
+  }
+
+  to {
+    opacity:
+      1;
+  }
+}
+
+
+@keyframes entradaTarjetaServidor {
+  from {
+    opacity:
+      0;
+
+    transform:
+      scale(
+        0.92
+      )
+      translateY(
+        18px
+      );
+  }
+
+  to {
+    opacity:
+      1;
+
+    transform:
+      scale(
+        1
+      )
+      translateY(
+        0
+      );
+  }
+}
+
+
+@keyframes conectadoServidor {
+  0% {
+    opacity:
+      0;
+
+    transform:
+      scale(
+        0.5
+      );
+  }
+
+  70% {
+    transform:
+      scale(
+        1.12
+      );
+  }
+
+  100% {
+    opacity:
+      1;
+
+    transform:
+      scale(
+        1
+      );
+  }
+}
+
+
+@media (
+  max-width: 600px
+) {
+  .espera-servidor-overlay {
+    padding:
+      15px;
+  }
+
+
+  .espera-servidor-tarjeta {
+    padding:
+      25px 20px;
+
+    border-radius:
+      20px;
+  }
+
+
+  .espera-servidor-spinner {
+    width:
+      58px;
+
+    height:
+      58px;
+
+    border-width:
+      5px;
+  }
+
+
+  .espera-servidor-tarjeta h3 {
+    font-size:
+      21px;
+  }
+
+
+  .espera-servidor-tarjeta p {
+    font-size:
+      13px;
+  }
+}

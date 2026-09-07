@@ -2,6 +2,7 @@ import {
   useDiseno,
 } from "./contexto/ContextoDiseno";
 
+
 import InicioArcade from "./disenos/arcade/paginas/InicioArcade";
 
 import InicioModerno from "./disenos/moderno/paginas/InicioModerno";
@@ -9,6 +10,8 @@ import InicioModerno from "./disenos/moderno/paginas/InicioModerno";
 import InicioRetro90 from "./disenos/retro90/paginas/InicioRetro90";
 
 import JuegoModal from "./componentes/comunes/JuegoModal";
+
+import EsperaServidor from "./componentes/comunes/EsperaServidor";
 
 
 function App() {
@@ -21,12 +24,14 @@ function App() {
 
 
   if (
-    diseno === "moderno"
+    diseno ===
+    "moderno"
   ) {
     contenido =
       <InicioModerno />;
   } else if (
-    diseno === "retro90"
+    diseno ===
+    "retro90"
   ) {
     contenido =
       <InicioRetro90 />;
@@ -41,6 +46,8 @@ function App() {
       {contenido}
 
       <JuegoModal />
+
+      <EsperaServidor />
     </>
   );
 }
